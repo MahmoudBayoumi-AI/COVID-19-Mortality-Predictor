@@ -20,6 +20,7 @@ st.set_page_config(
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "random_forest_model.joblib")
 st.sidebar.subheader("🔍 Debugging Files")
 if os.path.exists(MODEL_PATH):
     file_size_mb = os.path.getsize(MODEL_PATH) / (1024 * 1024)
