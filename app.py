@@ -15,10 +15,7 @@ st.set_page_config(
 )
 
 # MODEL_PATH = "model_pipelineE.pkl"
-# MODEL_PATH = "random_forest_model.joblib"
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "model_pipelineE.pkl")
+MODEL_PATH = "random_forest_model.joblib"
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
