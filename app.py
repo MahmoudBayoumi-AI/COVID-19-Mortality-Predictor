@@ -14,21 +14,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# MODEL_PATH = "model_pipelineE.pkl"
+MODEL_PATH = "model_pipelineE.pkl"
 # MODEL_PATH = "random_forest_model.joblib"
-# ضع هذا الكود في أعلى الصفحة مؤقتاً
-import os
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "random_forest_model.joblib")
-st.sidebar.subheader("🔍 Debugging Files")
-if os.path.exists(MODEL_PATH):
-    file_size_mb = os.path.getsize(MODEL_PATH) / (1024 * 1024)
-    st.sidebar.success(f"File found! Size: {file_size_mb:.2f} MB")
-else:
-    st.sidebar.error("File NOT found at path!")
-    st.sidebar.write("Available files:", os.listdir(BASE_DIR))
-    
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
@@ -242,20 +229,12 @@ def ekg_divider(height=54):
 
 # =========================================================
 # MODEL LOADING
-# =========================================================
-# @st.cache_resource
-# def load_model(path):
-#     try:
-#         return joblib.load(path)
-#     except FileNotFoundError:
-        # return None
-# بدّل هذه الدالة مؤقتاً لترى سبب المشكلة الحقيقي
+=========================================================
 @st.cache_resource
 def load_model(path):
     try:
         return joblib.load(path)
-    except Exception as e:
-        st.error(f"Error details: {e}")
+    except FileNotFoundError:
         return None
 model_pipe = load_model(MODEL_PATH)
 
