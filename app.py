@@ -14,8 +14,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# MODEL_PATH = "model_pipelineE.pkl"
-MODEL_PATH = "random_forest_model.joblib"
+MODEL_PATH = "model_pipelineE.pkl"
+# MODEL_PATH = "random_forest_model.joblib"
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
@@ -365,7 +365,7 @@ if page == "Predictor":
         if model_pipe is None:
             st.error(
                 f"Could not find **{MODEL_PATH}**. Place the pickled model "
-                "in the `model/` folder and reload."
+                "in the folder and reload."
             )
         else:
             row = {
