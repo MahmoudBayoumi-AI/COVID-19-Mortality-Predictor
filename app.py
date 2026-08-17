@@ -14,13 +14,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# MODEL_PATH = "model_pipelineE.pkl"
+MODEL_PATH = "model_pipelineE.pkl"
 # MODEL_PATH = "random_forest_model.joblib"
-import os
-
-# احصل على المسار الفعلي لمجلد الملف الحالي
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "random_forest_model.joblib")
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
