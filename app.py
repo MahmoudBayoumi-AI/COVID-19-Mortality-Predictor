@@ -230,22 +230,12 @@ def ekg_divider(height=54):
 # =========================================================
 # MODEL LOADING
 # =========================================================
-# @st.cache_resource
-# def load_model(path):
-#     try:
-#         return joblib.load(path)
-#     except FileNotFoundError:
-#         return None
-# model_pipe = load_model(MODEL_PATH)
-
 @st.cache_resource
 def load_model(path):
     try:
         return joblib.load(path)
-    except Exception as e:
-        st.error(f"Model loading error: {type(e).__name__}: {e}")
+    except FileNotFoundError:
         return None
-
 model_pipe = load_model(MODEL_PATH)
 
 
