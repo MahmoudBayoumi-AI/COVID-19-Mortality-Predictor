@@ -14,8 +14,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-MODEL_PATH = "model_pipelineE.pkl"
-# MODEL_PATH = "random_forest_model.joblib"
+# MODEL_PATH = "model_pipelineE.pkl"
+MODEL_PATH = "random_forest_model.joblib"
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
@@ -230,14 +230,23 @@ def ekg_divider(height=54):
 # =========================================================
 # MODEL LOADING
 # =========================================================
+# @st.cache_resource
+# def load_model(path):
+#     try:
+#         return joblib.load(path)
+#     except FileNotFoundError:
+        # return None
+# بدّل هذه الدالة مؤقتاً لترى سبب المشكلة الحقيقي
 @st.cache_resource
 def load_model(path):
     try:
         return joblib.load(path)
-    except FileNotFoundError:
+    except Exception as e:
+        st.error(f"Error details: {e}")
         return None
-
 model_pipe = load_model(MODEL_PATH)
+
+
 
 # =========================================================
 # SIDEBAR — IDENTITY, NAV, VITALS
