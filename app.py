@@ -25,12 +25,6 @@ FEATURE_ORDER = [
 
 # =========================================================
 # DESIGN TOKENS
-# ---------------------------------------------------------
-# The look borrows from a bedside patient monitor rather than a
-# generic dark dashboard: graphite screen, faint graticule grid,
-# an amber "chart pen" as the working accent, and green / red
-# reserved strictly for the clinical verdict (never for chrome) —
-# the same discipline a triage board uses.
 # =========================================================
 st.markdown("""
 <style>
@@ -126,20 +120,20 @@ st.markdown("""
     }
 
     /* ---------- cards ---------- */
-    .card {
+    div[class*="st-key-card-"] {
         background: var(--panel);
         border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 20px 22px;
-        margin-bottom: 16px;
+        border-radius: 8px;
+        padding: 12px 16px 6px 16px;
+        margin-bottom: 12px;
         transition: border-color 0.15s ease;
     }
-    .card:hover { border-color: var(--amber-dim); }
+    div[class*="st-key-card-"]:hover { border-color: var(--amber-dim); }
     .card-tag {
         font-family: 'IBM Plex Mono', monospace;
-        color: var(--amber); font-weight: 600; font-size: 0.78rem;
-        letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;
-        border-bottom: 1px solid var(--line); padding-bottom: 8px;
+        color: var(--amber); font-weight: 600; font-size: 0.72rem;
+        letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase;
+        border-bottom: 1px solid var(--line); padding-bottom: 6px;
     }
 
     /* ---------- widgets ---------- */
@@ -164,7 +158,7 @@ st.markdown("""
         box-shadow: 0 0 0 1px var(--amber) !important;
     }
 
-    /* action button — amber ("chart pen"), never red: red is reserved for the verdict only */
+    /* action button */
     .stButton > button {
         background: var(--amber);
         color: #211404; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
@@ -315,49 +309,51 @@ if page == "Predictor":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-tag">Patient &amp; Care</div>', unsafe_allow_html=True)
-        age = st.number_input("Age", min_value=0, max_value=120, value=45, step=1)
-        gender_label = st.selectbox("Gender", ["Female", "Male"])
-        gender = 1 if gender_label == "Female" else 0
+        with st.container(key="card-patient"):
+            st.markdown('<div class="card-tag">Patient &amp; Care</div>', unsafe_allow_html=True)
+            age = st.number_input("Age", min_value=0, max_value=120, value=45, step=1)
+            gender_label = st.selectbox("Gender", ["Female", "Male"])
+            gender = 1 if gender_label == "Female" else 0
 
-        care_label = st.selectbox("Care Type", ["Outpatient (returned home)", "Hospitalized"])
-        care_type = 1 if care_label.startswith("Outpatient") else 0
+            care_label = st.selectbox("Care Type", ["Outpatient (returned home)", "Hospitalized"])
+            care_type = 1 if care_label.startswith("Outpatient") else 0
 
-        pregnant = yes_no_select("Pregnant", "pregnant")
+            # شرط الحمل بناءً على النوع المحدد
+            if gender_label == "Male":
+                st.selectbox("Pregnant", ["No"], index=0, disabled=True, help="Not applicable for male patients")
+                pregnant = 0
+            else:
+                pregnant = yes_no_select("Pregnant", "pregnant")
 
-        medical_unit_level = st.selectbox("Medical Unit Level", ["Level 1", "Level 2"])
-        medical_unit_level = 1 if medical_unit_level == "Level 1" else 2
+            medical_unit_level = st.selectbox("Medical Unit Level", ["Level 1", "Level 2"])
+            medical_unit_level = 1 if medical_unit_level == "Level 1" else 2
 
-        medical_unit = st.selectbox("Medical Unit", list(range(1, 14)), index=0)
-        st.markdown('</div>', unsafe_allow_html=True)
+            medical_unit = st.selectbox("Medical Unit", list(range(1, 14)), index=0)
 
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-tag">COVID Status &amp; Critical Care</div>', unsafe_allow_html=True)
-        classification_label = st.selectbox("COVID Classification", list(CLASSIFICATION_OPTIONS.keys()))
-        covid_classification = CLASSIFICATION_OPTIONS[classification_label]
-        pneumonia = yes_no_select("Pneumonia", "pneumonia")
-        intubated = yes_no_select("Intubated", "intubated")
-        icu_admission = yes_no_select("ICU Admission", "icu")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(key="card-covid"):
+            st.markdown('<div class="card-tag">COVID Status &amp; Critical Care</div>', unsafe_allow_html=True)
+            classification_label = st.selectbox("COVID Classification", list(CLASSIFICATION_OPTIONS.keys()))
+            covid_classification = CLASSIFICATION_OPTIONS[classification_label]
+            pneumonia = yes_no_select("Pneumonia", "pneumonia")
+            intubated = yes_no_select("Intubated", "intubated")
+            icu_admission = yes_no_select("ICU Admission", "icu")
 
     with col2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-tag">Pre-existing Conditions</div>', unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        with c1:
-            diabetes = yes_no_select("Diabetes", "diabetes")
-            copd = yes_no_select("COPD", "copd")
-            asthma = yes_no_select("Asthma", "asthma")
-            immunosuppressed = yes_no_select("Immunosuppressed", "immuno")
-            high_pressure = yes_no_select("High Blood Pressure", "hp")
-        with c2:
-            other_disease = yes_no_select("Other Disease", "other")
-            cardiovascular = yes_no_select("Cardiovascular Disease", "cardio")
-            obesity = yes_no_select("Obesity", "obesity")
-            chronic_renal = yes_no_select("Chronic Renal Disease", "renal")
-            tobacco_use = yes_no_select("Tobacco Use", "tobacco")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(key="card-conditions"):
+            st.markdown('<div class="card-tag">Pre-existing Conditions</div>', unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1:
+                diabetes = yes_no_select("Diabetes", "diabetes")
+                copd = yes_no_select("COPD", "copd")
+                asthma = yes_no_select("Asthma", "asthma")
+                immunosuppressed = yes_no_select("Immunosuppressed", "immuno")
+                high_pressure = yes_no_select("High Blood Pressure", "hp")
+            with c2:
+                other_disease = yes_no_select("Other Disease", "other")
+                cardiovascular = yes_no_select("Cardiovascular Disease", "cardio")
+                obesity = yes_no_select("Obesity", "obesity")
+                chronic_renal = yes_no_select("Chronic Renal Disease", "renal")
+                tobacco_use = yes_no_select("Tobacco Use", "tobacco")
 
     st.markdown("<br>", unsafe_allow_html=True)
     predict_clicked = st.button("Read the Chart — Predict Outcome")
@@ -440,51 +436,49 @@ else:
     st.markdown('<div class="section-sub">Anonymized patient data released by the Mexican government, covering over 1 million COVID-19 cases with 21 original features.</div>', unsafe_allow_html=True)
     ekg_divider(height=40)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-tag">Feature Reference</div>', unsafe_allow_html=True)
-    ref = pd.DataFrame({
-        "Feature": [
-            "medical_unit_level", "medical_unit", "gender", "care_type", "intubated",
-            "pneumonia", "age", "pregnant", "diabetes", "copd", "asthma",
-            "immunosuppressed", "high_pressure", "other_disease", "cardiovascular",
-            "obesity", "chronic_renal", "tobacco_use", "covid_classification", "icu_admission",
-        ],
-        "Meaning": [
-            "Level of the medical unit that treated the patient (1 or 2)",
-            "ID of the specific health institution (1–13)",
-            "1 = Female, 0 = Male",
-            "1 = Outpatient (returned home), 0 = Hospitalized",
-            "1 = Connected to ventilator, 0 = Not intubated",
-            "1 = Has pneumonia / air-sac inflammation, 0 = No",
-            "Patient age in years",
-            "1 = Pregnant, 0 = Not pregnant",
-            "1 = Has diabetes, 0 = No",
-            "1 = Chronic obstructive pulmonary disease, 0 = No",
-            "1 = Has asthma, 0 = No",
-            "1 = Immunosuppressed, 0 = No",
-            "1 = Has hypertension, 0 = No",
-            "1 = Has another disease, 0 = No",
-            "1 = Cardiovascular disease, 0 = No",
-            "1 = Obese, 0 = No",
-            "1 = Chronic renal disease, 0 = No",
-            "1 = Tobacco user, 0 = No",
-            "1–3 = Positive COVID (varying confirmation degree), 4–7 = Negative / inconclusive",
-            "1 = Admitted to ICU, 0 = Not admitted",
-        ],
-    })
-    st.dataframe(ref, use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(key="card-features"):
+        st.markdown('<div class="card-tag">Feature Reference</div>', unsafe_allow_html=True)
+        ref = pd.DataFrame({
+            "Feature": [
+                "medical_unit_level", "medical_unit", "gender", "care_type", "intubated",
+                "pneumonia", "age", "pregnant", "diabetes", "copd", "asthma",
+                "immunosuppressed", "high_pressure", "other_disease", "cardiovascular",
+                "obesity", "chronic_renal", "tobacco_use", "covid_classification", "icu_admission",
+            ],
+            "Meaning": [
+                "Level of the medical unit that treated the patient (1 or 2)",
+                "ID of the specific health institution (1–13)",
+                "1 = Female, 0 = Male",
+                "1 = Outpatient (returned home), 0 = Hospitalized",
+                "1 = Connected to ventilator, 0 = Not intubated",
+                "1 = Has pneumonia / air-sac inflammation, 0 = No",
+                "Patient age in years",
+                "1 = Pregnant, 0 = Not pregnant",
+                "1 = Has diabetes, 0 = No",
+                "1 = Chronic obstructive pulmonary disease, 0 = No",
+                "1 = Has asthma, 0 = No",
+                "1 = Immunosuppressed, 0 = No",
+                "1 = Has hypertension, 0 = No",
+                "1 = Has another disease, 0 = No",
+                "1 = Cardiovascular disease, 0 = No",
+                "1 = Obese, 0 = No",
+                "1 = Chronic renal disease, 0 = No",
+                "1 = Tobacco user, 0 = No",
+                "1–3 = Positive COVID (varying confirmation degree), 4–7 = Negative / inconclusive",
+                "1 = Admitted to ICU, 0 = Not admitted",
+            ],
+        })
+        st.dataframe(ref, use_container_width=True, hide_index=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-tag">Target — DIED</div>', unsafe_allow_html=True)
-    st.write(
-        "Derived from the original `DATE_DIED` column: `9999-99-99` → **Alive (0)**, "
-        "any real date → **Died (1)**. After cleaning missing values and dropping "
-        "invalid ages, the final dataset used for training had **1,025,152** patients "
-        "(before the age-0 filter) — roughly **93% Alive** vs **7% Died**, which is why "
-        "SMOTE oversampling was applied before training."
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(key="card-target"):
+        st.markdown('<div class="card-tag">Target — DIED</div>', unsafe_allow_html=True)
+        st.write(
+            "Derived from the original `DATE_DIED` column: `9999-99-99` → **Alive (0)**, "
+            "any real date → **Died (1)**. After cleaning missing values and dropping "
+            "invalid ages, the final dataset used for training had **1,025,152** patients "
+            "(before the age-0 filter) — roughly **93% Alive** vs **7% Died**, which is why "
+            "SMOTE oversampling was applied before training."
+        )
 
 st.markdown(
     '<div class="foot-note">COVICARE AI · MACHINE LEARNING COVID-19 MORTALITY PREDICTOR '
