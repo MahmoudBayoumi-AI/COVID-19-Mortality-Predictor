@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -91,8 +92,8 @@ st.markdown("""
 
     /* vitals readouts */
     .vital-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
-    .vital-num { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; font-weight: 600; color: #ffffff; }
-    .vital-label { font-size: 0.66rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; text-align: right; max-width: 120px; }
+    .vital-num { font-family: 'IBM Plex Mono', monospace; font-size: 1.35rem; font-weight: 600; color: #ffffff; }
+    .vital-label { font-size: 0.66rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; text-align: right; max-width: 130px; }
     .vital-tick { height: 2px; background: linear-gradient(90deg, var(--amber) 0%, transparent 100%); margin-top: 4px; opacity: 0.5; }
 
     /* ---------- section headers ---------- */
@@ -235,7 +236,7 @@ def load_model(path):
     except FileNotFoundError:
         return None
 
-knn_pipe = load_model(MODEL_PATH)
+model_pipe = load_model(MODEL_PATH)
 
 # =========================================================
 # SIDEBAR — IDENTITY, NAV, VITALS
@@ -251,13 +252,14 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    st.markdown('<div class="nav-caption">Dataset Snapshot</div>', unsafe_allow_html=True)
+    st.markdown('<div class="nav-caption">Test Performance</div>', unsafe_allow_html=True)
 
     vitals = [
-        ("1,025,152", "PATIENTS AFTER CLEANING"),
-        ("20", "INPUT FEATURES"),
-        ("13", "MEDICAL UNIT TYPES"),
-        ("93.25%", "MODEL ACCURACY · KNN"),
+        ("89.12%", "TEST ACCURACY · RF"),
+        ("96.65%", "TEST ROC-AUC"),
+        ("94.65%", "TEST RECALL"),
+        ("55.92%", "TEST F1-SCORE"),
+        ("39.69%", "TEST PRECISION"),
     ]
     for num, label in vitals:
         st.markdown(f"""
@@ -272,9 +274,9 @@ with st.sidebar:
 
     st.markdown('<div class="nav-caption">Active Model</div>', unsafe_allow_html=True)
     st.markdown(
-        '<span class="mono" style="color:#fff;">KNeighborsClassifier</span><br>'
+        '<span class="mono" style="color:#fff;">RandomForestClassifier</span><br>'
         '<span class="mono" style="color:var(--text-dim); font-size:0.8rem;">'
-        'StandardScaler → KNN(k=5, distance)</span>',
+        'max_depth = 12 &nbsp;|&nbsp; Best CV F1: 0.5183</span>',
         unsafe_allow_html=True,
     )
 
@@ -359,10 +361,10 @@ if page == "Predictor":
     predict_clicked = st.button("Read the Chart — Predict Outcome")
 
     if predict_clicked:
-        if knn_pipe is None:
+        if model_pipe is None:
             st.error(
-                f"Could not find **{MODEL_PATH}**. Place the pickled `knn_pipe` "
-                "pipeline in the same folder as this app and reload."
+                f"Could not find **{MODEL_PATH}**. Place the pickled model "
+                "in the `model/` folder and reload."
             )
         else:
             row = {
@@ -389,8 +391,8 @@ if page == "Predictor":
             }
             input_df = pd.DataFrame([row], columns=FEATURE_ORDER)
 
-            pred = knn_pipe.predict(input_df)[0]
-            proba = knn_pipe.predict_proba(input_df)[0]
+            pred = model_pipe.predict(input_df)[0]
+            proba = model_pipe.predict_proba(input_df)[0]
             labels = ["Alive", "Died"]
             verdict = labels[int(pred)]
             died_prob = proba[1] * 100
@@ -433,7 +435,7 @@ if page == "Predictor":
 else:
     st.markdown('<div class="eyebrow">Source</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-head">About the Dataset</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-sub">Anonymized patient data released by the Mexican government, covering over 1 million COVID-19 cases with 21 original features.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Anonymized patient data released by the Mexican government, covering over 1 million COVID-19 cases with 20 input features.</div>', unsafe_allow_html=True)
     ekg_divider(height=40)
 
     with st.container(key="card-features"):
@@ -474,10 +476,8 @@ else:
         st.markdown('<div class="card-tag">Target — DIED</div>', unsafe_allow_html=True)
         st.write(
             "Derived from the original `DATE_DIED` column: `9999-99-99` → **Alive (0)**, "
-            "any real date → **Died (1)**. After cleaning missing values and dropping "
-            "invalid ages, the final dataset used for training had **1,025,152** patients "
-            "(before the age-0 filter) — roughly **93% Alive** vs **7% Died**, which is why "
-            "SMOTE oversampling was applied before training."
+            "any real date → **Died (1)**. The dataset was balanced and tuned with "
+            "**Random Forest (max_depth=12)** achieving high clinical sensitivity (**Recall: 94.65%** and **ROC-AUC: 0.9665**)."
         )
 
 st.markdown(
