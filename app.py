@@ -20,6 +20,11 @@ st.set_page_config(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "random_forest_model.joblib")
 
+st.write("BASE_DIR:", BASE_DIR)
+st.write("MODEL_PATH:", MODEL_PATH)
+st.write("FILES:", os.listdir(BASE_DIR))
+st.write("EXISTS:", os.path.exists(MODEL_PATH))
+
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
     "intubated", "pneumonia", "age", "pregnant", "diabetes", "copd",
