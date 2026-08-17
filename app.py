@@ -56,9 +56,6 @@ st.markdown("""
 
     .stApp {
         background-color: var(--ink);
-        background-image:
-            repeating-linear-gradient(0deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 28px),
-            repeating-linear-gradient(90deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 28px);
         color: var(--text);
     }
 
@@ -256,7 +253,7 @@ with st.sidebar:
 
     st.markdown('<div class="nav-caption">CHART</div>', unsafe_allow_html=True)
     page = st.radio(
-        "nav", ["Predictor", "Model Insights", "About Dataset"],
+        "nav", ["Predictor", "About Dataset"],
         label_visibility="collapsed",
     )
 
@@ -433,51 +430,6 @@ if page == "Predictor":
                 "This tool provides a statistical estimate based on historical patterns and is "
                 "**not** a clinical diagnosis. Always consult a medical professional."
             )
-
-# =========================================================
-# PAGE: MODEL INSIGHTS
-# =========================================================
-elif page == "Model Insights":
-    st.markdown('<div class="eyebrow">Performance</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-head">Model Insights</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-sub">Metrics reported on the held-out test set (20% split, SMOTE-balanced training data).</div>', unsafe_allow_html=True)
-    ekg_divider(height=40)
-
-    m1, m2, m3, m4 = st.columns(4)
-    metrics = [
-        ("93.25%", "ACCURACY"),
-        ("53.17%", "PRECISION · DIED"),
-        ("62.72%", "RECALL · DIED"),
-        ("0.892", "ROC-AUC"),
-    ]
-    for col, (num, label) in zip([m1, m2, m3, m4], metrics):
-        with col:
-            st.markdown(f"""
-            <div class="card" style="text-align:center;">
-                <div class="vital-num" style="font-size:1.6rem;">{num}</div>
-                <div class="vital-label" style="text-align:center; max-width:none;">{label}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-tag">Pipeline</div>', unsafe_allow_html=True)
-    st.code("knn_pipe = make_pipeline(\n    StandardScaler(),\n    KNeighborsClassifier(n_neighbors=5, weights='distance')\n)", language="python")
-    st.write(
-        "Trained on SMOTENC-resampled data to correct the strong class imbalance "
-        "(≈93% Alive vs ≈7% Died in the raw data) before fitting."
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-tag">Classification Report — Test Set</div>', unsafe_allow_html=True)
-    report_df = pd.DataFrame({
-        "precision": [0.97, 0.53],
-        "recall": [0.96, 0.63],
-        "f1-score": [0.96, 0.58],
-        "support": [189373, 14902],
-    }, index=["Alive", "Died"])
-    st.dataframe(report_df, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # PAGE: ABOUT DATASET
