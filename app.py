@@ -14,8 +14,11 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-MODEL_PATH = "model_pipelineE.pkl"
+# MODEL_PATH = "model_pipelineE.pkl"
 # MODEL_PATH = "random_forest_model.joblib"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "random_forest_model.joblib")
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
@@ -230,14 +233,23 @@ def ekg_divider(height=54):
 # =========================================================
 # MODEL LOADING
 # =========================================================
+# @st.cache_resource
+# def load_model(path):
+#     try:
+#         return joblib.load(path)
+#     except FileNotFoundError:
+#         return None
+# model_pipe = load_model(MODEL_PATH)
+
 @st.cache_resource
 def load_model(path):
     try:
         return joblib.load(path)
-    except FileNotFoundError:
+    except Exception as e:
+        st.error(f"Model loading error: {type(e).__name__}: {e}")
         return None
-model_pipe = load_model(MODEL_PATH)
 
+model_pipe = load_model(MODEL_PATH)
 
 
 # =========================================================
