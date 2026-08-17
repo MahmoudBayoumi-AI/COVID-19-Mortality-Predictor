@@ -15,7 +15,19 @@ st.set_page_config(
 )
 
 # MODEL_PATH = "model_pipelineE.pkl"
-MODEL_PATH = "random_forest_model.joblib"
+# MODEL_PATH = "random_forest_model.joblib"
+# ضع هذا الكود في أعلى الصفحة مؤقتاً
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+st.sidebar.subheader("🔍 Debugging Files")
+if os.path.exists(MODEL_PATH):
+    file_size_mb = os.path.getsize(MODEL_PATH) / (1024 * 1024)
+    st.sidebar.success(f"File found! Size: {file_size_mb:.2f} MB")
+else:
+    st.sidebar.error("File NOT found at path!")
+    st.sidebar.write("Available files:", os.listdir(BASE_DIR))
+    
 
 FEATURE_ORDER = [
     "medical_unit_level", "medical_unit", "gender", "care_type",
